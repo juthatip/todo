@@ -5,69 +5,90 @@ export class AddNote extends Component {
     super();
 
     this.handleTitle = this.handleTitle.bind(this);
-    // this.handleLists = this.handleLists.bind(this);
     this.addTodo = this.addTodo.bind(this);
 
     this.state = {
-      data: [
-        {title: '', lists: ['']}
-      ]
+      title: '',
+      tasks: [''],
+      data: []
     }
   }
 
   handleTitle(e) {
     this.state.title = e.target.value;
+
+    this.setState({
+      title: this.state.title
+    });
+
   }
 
-  handleLists(i, e) {
-    // let lists = this.state.lists;
-    // lists[i] = e.target.value;
+  handleTasks(i, e) {
+    this.state.tasks[i] = e.target.value;
 
-    // this.setState({
-    //   test: [
-    //     {title: title, lists: lists}
-    //   ]
-    // })
+    this.setState({
+      tasks: this.state.tasks
+    });
 
-    console.log(this.state.lists);
+  }
 
+  addTask() {
+    this.state.tasks.push('');
 
-
+    this.setState({
+      tasks: this.state.tasks
+    });
   }
 
   addTodo() {
-
-    let title = this.state.title;
-    let lists  = this.state.lists;
-    // console.log(this.state.data);
-
+    this.state.data.push({
+      title: this.state.title,
+      tasks: [...this.state.tasks]
+    });
     this.setState({
-      data: [
-        {
-          title: title,
-          lists: lists
-        }
-      ]
+      data: this.state.data
     });
 
-
+    this.setState({
+      title: '',
+      tasks: ['']
+    });
   }
 
+
+
   render() {
+    // console.log(this.state.data);
     return (
       <div>
         TODOLIST:
-       <h1>Title: <input type="text" onChange={this.handleTitle} /></h1>
-        <p></p>
+       <h1>Title: <input type="text" onChange={this.handleTitle} value={this.state.title} /></h1>
         <div>
-          {this.state.data.lists.map((value, i)=>{
-            return <p key={i}>lists: <input type="text" onChange={this.handleLists.bind(this, i)} /></p>;
+          {this.state.tasks.map((value, i)=>{
+            return <p key={i}>Task: <input type="text" onChange={this.handleTasks.bind(this, i)} value={value} /></p>;
           })}
 
         </div>
-        <a>+ Add todo</a>
+        <a onClick={this.addTask.bind(this)}>+ Add todo</a>
         <div>
-          <buttton onClick={this.addTodo}>Add your list</buttton>
+          <button onClick={this.addTodo}>Add your list</button>
+        </div>
+
+        <div>
+          {
+            this.state.data.map((obj, i)=> {
+              return (
+                <div key={i}> Your List {obj.title}
+                  {
+                    obj.tasks.map((task, a)=> {
+                     return ( <p key={a}>{task}</p> )
+                    })
+                  }
+                </div>
+              )
+            })
+          }
+
         </div>
     </div>
   );
