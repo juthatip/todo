@@ -6,12 +6,33 @@ export class AddNote extends Component {
 
     this.handleTitle = this.handleTitle.bind(this);
     this.addTodo = this.addTodo.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
 
     this.state = {
       title: '',
       tasks: [''],
       data: []
     }
+
+    this.store = [];
+
+    //fetch data from firebase
+
+    var todo = firebase.database().ref('todolist');
+
+    todo.on('value', (snapshot) => {
+
+      let data = snapshot.val();
+      let dataArr = Object.keys(data).map(key => data[key]);
+
+      this.store = dataArr;
+      // console.log(dataArr);
+      this.setState({
+        data: this.store
+      });
+
+    });
+
   }
 
   handleTitle(e) {
@@ -40,14 +61,42 @@ export class AddNote extends Component {
     });
   }
 
+  deleteTask(i, e) {
+    // this.state.data[i].splice();
+    let item = this.state.data;
+    let test = item.splice(i, 1);
+
+    console.log(test);
+
+
+
+    // this.setState({
+    //   tasks: test
+    // });
+  }
+
   addTodo() {
+
     this.state.data.push({
       title: this.state.title,
       tasks: [...this.state.tasks]
     });
+
+    // this.setState({
+    //   data: this.state.data
+    // });
+
     this.setState({
-      data: this.state.data
+      data: this.data
     });
+
+    var todoKey = firebase.database().ref().child('todolist').push().key;
+
+    firebase.database().ref('todolist/' + todoKey ).set({
+      title: this.state.title,
+      tasks: this.state.tasks
+    });
+
 
     this.setState({
       title: '',
@@ -55,7 +104,20 @@ export class AddNote extends Component {
     });
   }
 
+  handleSearch(e) {
 
+    let data = this.store;
+    let textSearch = e.target.value;
+    let todoListFilter = data;
+    // console.log(data);
+    // console.log(textSearch);
+    if(textSearch !== '') {
+        todoListFilter = data.filter((t) => t.title === textSearch);
+    }
+
+    this.setState({data: todoListFilter});
+
+  }
 
   render() {
     // console.log(this.state.data);
@@ -74,21 +136,30 @@ export class AddNote extends Component {
           <button onClick={this.addTodo}>Add your list</button>
         </div>
 
+
+        <br />
+        <div>
+          Search Todo <input type="text" onChange={this.handleSearch}  />
+        </div>
+
         <div>
           {
-            this.state.data.map((obj, i)=> {
-              return (
-                <div key={i}> Your List {obj.title}
-                  {
-                    obj.tasks.map((task, a)=> {
-                     return ( <p key={a}>{task}</p> )
-                    })
-                  }
-                </div>
-              )
-            })
-          }
+           this.state.data.map((object, i)=>{
+            return(
+              <div key={i}>
+                Title: {object.title}
 
+                {object.tasks.map((task, i) => {
+                  return (
+                    <span key={i}>&nbsp; &#9652; {task}</span>
+                  );
+                })
+                }
+                <a onClick={this.deleteTask.bind(this, i)} className="red">&nbsp; x Delete</a>
+              </div>
+            );
+           })
+          }
         </div>
     </div>
   );
