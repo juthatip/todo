@@ -61,18 +61,15 @@ export class AddNote extends Component {
     });
   }
 
-  deleteTask(i, e) {
-    // this.state.data[i].splice();
+  deleteTask(i) {
+
     let item = this.state.data;
-    let test = item.splice(i, 1);
+    item.splice(i, 1);
 
-    console.log(test);
+    this.setState({
+      data: item
+    });
 
-
-
-    // this.setState({
-    //   tasks: test
-    // });
   }
 
   addTodo() {
@@ -104,6 +101,38 @@ export class AddNote extends Component {
     });
   }
 
+  editTask(i) {
+    let data = this.state.data;
+    if (!data[i].hasOwnProperty('editable')) {
+      data[i].editable = true;
+    } else {
+      data[i].editable = !data[i].editable;
+    }
+
+    this.setState({
+      data: data
+    })
+  }
+
+  handleEditTitle(i, e) {
+    let data = this.state.data;
+    data[i].title    = e.target.value;
+
+    this.setState({
+      data: data
+    })
+  }
+
+  handleEditTask(i, j, e) {
+    let data = this.state.data;
+    data[i].tasks[j] = e.target.value;
+
+    this.setState({
+      data: data
+    })
+
+  }
+
   handleSearch(e) {
 
     let data = this.store;
@@ -119,8 +148,34 @@ export class AddNote extends Component {
 
   }
 
+  editableTitle(object, i) {
+    console.log(object);
+    if (object.editable) {
+      return <input type="text" onChange={this.handleEditTitle.bind(this, i)} value={object.title} />
+    } else {
+      return object.title;
+    }
+  }
+
+  editableTasks(task, object, i, j) {
+    if (object.editable) {
+      return <input type="text" value={task} onChange={this.handleEditTask.bind(this, i, j)} />
+    } else {
+      return <span key={j}>&nbsp; &#9652; {task}</span>;
+    }
+  }
+
+  editBtn(object) {
+    if (object.editable) {
+      return 'save';
+    } else {
+      return 'edit';
+    }
+  }
+
   render() {
     // console.log(this.state.data);
+
     return (
       <div>
         TODOLIST:
@@ -147,15 +202,25 @@ export class AddNote extends Component {
            this.state.data.map((object, i)=>{
             return(
               <div key={i}>
-                Title: {object.title}
+                {/*Title: {object.title}*/}
 
-                {object.tasks.map((task, i) => {
+                Title: {this.editableTitle(object, i)}
+
+                {/*<input type="text" key={i} value={object.title} onChange={this.handleEditTitle.bind(this, i)}/>*/}
+
+                {object.tasks.map((task, j) => {
                   return (
-                    <span key={i}>&nbsp; &#9652; {task}</span>
+                    <div key={j}>
+                      {/*<span key={j}>&nbsp; &#9652; {task}</span>*/}
+                      {/*<input type="text" value={task} onChange={this.handleEditTask.bind(this, i, j)} />*/}
+                      {this.editableTasks(task, object, i, j)}
+                    </div>
                   );
                 })
                 }
-                <a onClick={this.deleteTask.bind(this, i)} className="red">&nbsp; x Delete</a>
+
+                <a onClick={this.editTask.bind(this, i)} className="blue">&nbsp; {this.editBtn(object)}</a>
+                <a onClick={this.deleteTask.bind(this, i)} className="red">&nbsp; Delete</a>
               </div>
             );
            })
